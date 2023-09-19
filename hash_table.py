@@ -12,6 +12,7 @@ class Node:
             self.value = val
             self.next = None
 
+
     def __repr__(self) -> str:
         if self.exists:
             return f'"{self.key}" : "{self.value}"'
