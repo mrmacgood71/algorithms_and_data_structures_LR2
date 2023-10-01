@@ -6,21 +6,21 @@ T = TypeVar('T')
 
 class TheSameKeyException(Exception):
     pass
-@dataclass
-class Node(Generic[T]):
-    def __init__(self, key, value, visible: bool = True):
-        self.key: Optional['T'] = key
-        self.value: Optional['T'] = value
-        self.visible: bool = visible
-        self.next: Optional['Node[T]'] = None
-
-    def __repr__(self) -> str:
-        if self.key is not None and self.value is not None:
-            return f'"{self.key}" : "{self.value}"'
-        else:
-            return ""
 
 class HashTable:
+    @dataclass
+    class _Node(Generic[T]):
+        def __init__(self, key, value, visible: bool = True):
+            self.key: Optional['T'] = key
+            self.value: Optional['T'] = value
+            self.visible: bool = visible
+            self.next: Optional['HashTable._Node[T]'] = None
+
+        def __repr__(self) -> str:
+            if self.key is not None and self.value is not None:
+                return f'"{self.key}" : "{self.value}"'
+            else:
+                return ""
 
     _entities: int = 0
 
@@ -33,40 +33,39 @@ class HashTable:
     """
     def __init__(self, size: int = 8):
         self.size: int = size
-        self.__map: List[Node] = [Node(None, None)] * self.size
+        self.__map: List[HashTable._Node] = [HashTable._Node(None, None)] * self.size
 
     """
         Этот метод удваивает размер хеш-таблицы и копирует все элементы из старой таблицы в новую, 
         высчитывая новый хэш код для каждого элемента.
+        __setitem__ - прописывается явно, чтобы передать параметр is_rehash_call
     """
     def rehash(self) -> None:
         self.size = self.size * 2
         temp = self.__map
-        self.__map: List[Node] = [Node(None, None)] * self.size
+        self.__map: List[HashTable._Node] = [HashTable._Node(None, None)] * self.size
         for node in temp:
             current = node
             if current.key is not None:
                 while current.next is not None:
-                    # item = Node(current.key, current.value, current.visible)
                     if current.visible:
-                        self.__add__(current.key, current.value, current.visible)
+                        self.__setitem__(current.key, current.value, True)
+                        self[current.key].visible = current.visible
                     current = current.next
-                # item = Node()
-                self.__add__(current.key, current.value)
+                self.__setitem__(current.key, current.value, True)
 
     """
-        Метод добавляет новый узел в хеш-таблицу.
-        Args:
-            :arg item(Node) - элемент, необходимый для вставки
-        Если ключ уже существует в хэш-таблице, то выкидываем ошибку
-        Если таблица заполнена, она сначала удваивается в размере, и рехэшируется
-        Если хэш-код уже существует, проверяем, есть ли у него потомки в цепи, и вставляем в самый конец,
-        иначе просто вставляем элемент в бакет
-        
-    """
-    def __add__(self, key: T, value: T, visible: bool = True) -> None:
-        item = Node(key, value, visible)
-        self._entities = self._entities + 1
+            Метод добавляет новый узел в хеш-таблицу.
+            Args:
+                :arg item(key: T, value: T, is_rehash_call: bool = False) - пара ключ-значение, необходимые для вставки
+            Если ключ уже существует в хэш-таблице, то выкидываем ошибку
+            Если таблица заполнена, она сначала удваивается в размере, и рехэшируется
+            Если хэш-код уже существует, проверяем, есть ли у него потомки в цепи, и вставляем в самый конец,
+            иначе просто вставляем элемент в бакет
+
+        """
+    def __setitem__(self, key: T, value: T, is_rehash_call: bool = False) -> None:
+        item = HashTable._Node(key, value)
 
         for node in self.__map:
             if node.key == item.key:
@@ -86,13 +85,16 @@ class HashTable:
         else:
             self.__map[hash_value] = item
 
+        if not is_rehash_call:
+            self._entities = self._entities + 1
+
     """
         Этот метод возвращает узел с указанным ключом из хеш-таблицы. Если такого ключа нет, он возвращает None.
         Args:
             :arg key(int) - Ключ искомого элемента
             :return Node | None
     """
-    def __getitem__(self, key: int) -> Node:
+    def __getitem__(self, key: T) -> _Node:
 
         hash_value = self._hash_code(str(key))
 
@@ -118,7 +120,7 @@ class HashTable:
          Args:
             :arg item: Node = искомый элемент
     """
-    def __contains__(self, item: Node) -> bool:
+    def __contains__(self, item: _Node) -> bool:
         hash_value = self._hash_code(str(item.key))
 
         if self.__map[hash_value].key == item.key:
@@ -139,7 +141,7 @@ class HashTable:
         При повторе значений, находит самый первый
         
     """
-    def find_by_value(self, value: T) -> Node:
+    def find_by_value(self, value: T) -> _Node:
         for node in self.__map:
             temp = node
             if temp.key is None:
@@ -172,14 +174,16 @@ class HashTable:
 
         for node in self.__map:
             temp = node
-
             while temp.next is not None:
-                printable += f'{temp} \t'
+
+                if temp.visible:
+                    printable += f'\t {temp}'
+                if temp.key is not None:
+                    printable += '\n'
                 temp = temp.next
-            if temp.visible:
-                printable += f'\t {temp}'
-            if temp.key is not None:
-                printable += '\n'
+            if temp.next is None and temp.visible and temp.key is not None:
+                printable += f'\t {temp}\n'
+
         printable += "\n}"
 
         return printable
@@ -189,9 +193,33 @@ class HashTable:
             :arg key(int) - ключ, по которому будет удаляться элемент
         По ключу 
     """
-    def delete(self, key: int) -> bool:
 
-        if not self.__getitem__(key):
+    def __delitem__(self, key: T) -> bool:
+
+        if not self[key]:
+            return False
+
+        hash_value = self._hash_code(str(key))
+
+        if self.__map[hash_value].key == key:
+            self.__map[hash_value].visible = False
+            return True
+
+        else:
+            found = self.__map[hash_value]
+
+            while found is not None and found.key != key:
+                found = found.next
+
+            if found is None:
+                return False
+            else:
+                found.visible = False
+                return True
+
+    def delete(self, key: T) -> bool:
+
+        if not self[key]:
             return False
 
         hash_value = self._hash_code(str(key))

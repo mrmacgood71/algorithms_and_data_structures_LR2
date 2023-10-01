@@ -163,11 +163,38 @@ class LinkedList(Generic[T]):
         ставим вставляемой ноде ссылку на предыдущую ноду как в ноде, которую мы заменили
         и в той ноде, что мы заменили по индексу ставим ссылку на предыдущую ноду вставляемую ноду
     """
-    def __add__(self, data: T, index: int = 0) -> None:
+    def insert(self, data: T, index: int = 0) -> None:
         if self._length > 0:
             ok: bool = self._check_range(index)
             if not ok:
                 raise IndexOutOfBoundException("-")
+
+        if index == 0:
+            self.push_head(data)
+            return
+        elif index == self._length - 1:
+            self.push_tail(data)
+            return
+
+        node = self._head
+        for i in range(0, index):
+            node = node.next_ptr
+
+        insert_node = Node[T](data)
+        insert_node.next_ptr = node
+        node.prev_ptr.next_ptr = insert_node
+        insert_node.prev_ptr = node.prev_ptr
+        node.prev_ptr = insert_node
+        self._length += 1
+
+    def __setitem__(self, index: int = 0, data: Optional[T] = None):
+        if self._length > 0:
+            ok: bool = self._check_range(index)
+            if not ok:
+                raise IndexOutOfBoundException("-")
+
+        if data is None:
+            raise AssertionError
 
         if index == 0:
             self.push_head(data)
@@ -255,7 +282,7 @@ class LinkedList(Generic[T]):
         В конце метод уменьшает длину списка на 1 и возвращает True.
     """
 
-    def __delitem__(self, key: int = 0) -> bool:
+    def __delitem__(self, key: int = 0):
 
         if self._length > 0:
             if not self._check_range(key):
@@ -267,12 +294,12 @@ class LinkedList(Generic[T]):
                 self._length: int = 0
                 self._head: Optional['Node[T]'] = None
                 self._tail: Optional['Node[T]'] = None
-                return True
+                return
             self._head = node.next_ptr
             self._head.prev_ptr = None
             del node
             self._length -= 1
-            return True
+            return
 
         node = self._head
         for i in range(0, key - 1):
@@ -283,13 +310,13 @@ class LinkedList(Generic[T]):
             self._tail = node
             self._tail.next_ptr = None
             self._length -= 1
-            return True
+            return
 
         delete_node = node.next_ptr
         node.next_ptr = delete_node.next_ptr
         node.next_ptr.prev_ptr = delete_node.prev_ptr
         self._length -= 1
-        return True
+        return
 
     """
         Метод применяет функцию func к каждому элементу в списке, начиная с головы списка и двигаясь вперед.  
