@@ -163,30 +163,6 @@ class LinkedList(Generic[T]):
         ставим вставляемой ноде ссылку на предыдущую ноду как в ноде, которую мы заменили
         и в той ноде, что мы заменили по индексу ставим ссылку на предыдущую ноду вставляемую ноду
     """
-    def insert(self, data: T, index: int = 0) -> None:
-        if self._length > 0:
-            ok: bool = self._check_range(index)
-            if not ok:
-                raise IndexOutOfBoundException("-")
-
-        if index == 0:
-            self.push_head(data)
-            return
-        elif index == self._length - 1:
-            self.push_tail(data)
-            return
-
-        node = self._head
-        for i in range(0, index):
-            node = node.next_ptr
-
-        insert_node = Node[T](data)
-        insert_node.next_ptr = node
-        node.prev_ptr.next_ptr = insert_node
-        insert_node.prev_ptr = node.prev_ptr
-        node.prev_ptr = insert_node
-        self._length += 1
-
     def __setitem__(self, index: int = 0, data: Optional[T] = None):
         if self._length > 0:
             ok: bool = self._check_range(index)
