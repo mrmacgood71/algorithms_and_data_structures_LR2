@@ -1,11 +1,13 @@
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
 from typing import TypeVar, Generic, Optional, Callable
 
 T = TypeVar('T')
 
+
 class IndexOutOfBoundException(Exception):
     pass
+
 
 @dataclass
 class Cat:
@@ -21,6 +23,7 @@ class Cat:
     """
         Строковое представление модели
     """
+
     def __str__(self):
         return f"Cat[{self.name}, {self.age}]"
 
@@ -51,7 +54,6 @@ class Node(Generic[T]):
     prev_ptr: Optional['Node[T]'] = None
 
 
-
 class LinkedList(Generic[T]):
     """
     Реализация двусвязного списка
@@ -61,6 +63,7 @@ class LinkedList(Generic[T]):
         :arg _tail(Optional['Node[T]']) - указатель на последний элемент (tail, хвост)
 
     """
+
     def __init__(self):
         self._length: int = 0
         self._head: Optional['Node[T]'] = None
@@ -69,6 +72,7 @@ class LinkedList(Generic[T]):
     """
         Получение длины списка
     """
+
     def get_size(self) -> int:
         return self._length
 
@@ -79,6 +83,7 @@ class LinkedList(Generic[T]):
 
             Если индекс больше или равен длине или он меньше нуля, то возвращаем False, иначе True
         """
+
     def _check_range(self, index: int) -> bool:
         if index >= self._length or index < 0:
             return False
@@ -163,6 +168,7 @@ class LinkedList(Generic[T]):
         ставим вставляемой ноде ссылку на предыдущую ноду как в ноде, которую мы заменили
         и в той ноде, что мы заменили по индексу ставим ссылку на предыдущую ноду вставляемую ноду
     """
+
     def __setitem__(self, index: int = 0, data: Optional[T] = None):
         if self._length > 0:
             ok: bool = self._check_range(index)
@@ -204,6 +210,7 @@ class LinkedList(Generic[T]):
         Иначе запускаем цикл, поке не найдём ноду с необходимым индексом
         и возвращаем результат
     """
+
     def __getitem__(self, index: int) -> T:
 
         if not self._check_range(index):
@@ -298,6 +305,7 @@ class LinkedList(Generic[T]):
         Метод применяет функцию func к каждому элементу в списке, начиная с головы списка и двигаясь вперед.  
         :param func: Callable[[T], None] = передаваемая фукнция  
     """
+
     def for_each(self, func: Callable[[T], None]) -> None:
         if self._head is not None:
             node = self._head
@@ -310,6 +318,7 @@ class LinkedList(Generic[T]):
         Метод применяет функцию func к каждому элементу в списке, начиная с хвоста списка и двигаясь назад.
         :param func: Callable[[T], None] = передаваемая фукнция
     """
+
     def reverse_for_each(self, func: Callable[[T], None]) -> None:
         if self._tail is not None:
             node = self._tail
@@ -356,6 +365,7 @@ class LinkedList(Generic[T]):
     """
         Метод возвращает строковое представление списка. Он проходит по всему списку и добавляет данные каждого узла в строку.
     """
+
     def __str__(self) -> str:
         node = self._head
         list_str = "List[ "
@@ -369,39 +379,45 @@ class LinkedList(Generic[T]):
     """
         Метод возвращает данные головного узла списка.
     """
+
     def head(self) -> T:
         return self._head.data
 
     """
         Метод возвращает данные хвостового узла списка.
     """
+
     def tail(self) -> T:
         return self._tail.data
 
 
 def add_item(llist: LinkedList[Cat]()) -> None:
-    llist.__add__(Cat(f"Max{1}", 7 + 1))
-    llist.__add__(Cat(f"Max{1}", 7 + 1))
-    llist.__add__(Cat(f"Max{1}", 7 + 1))
-    for i in range (0, 10000):
-        llist.__add__(Cat(f"Max{i}", 7 + i), int(llist.get_size()/2))
+    llist[0] = Cat(f"Max{1}", 7 + 1)
+    llist[0] = Cat(f"Max{1}", 7 + 1)
+    llist[0] = Cat(f"Max{1}", 7 + 1)
+    for i in range(0, 10000):
+        llist[int(llist.get_size() / 2)] = Cat(f"Max{i}", 7 + i)
+
 
 def add_item_to_head(llist: LinkedList[Cat]()) -> None:
-    for i in range (0, 10000):
-        llist.__add__(Cat(f"Max{i}", 7 + i), i)
+    for i in range(0, 10000):
+        llist[0] = Cat(f"Max{i}", 7 + i)
+
 
 def get_item(llist: LinkedList[Cat]()) -> None:
-    for i in range (0, 10000):
-        llist.__getitem__(i)
+    for i in range(0, 10000):
+        item = llist[i]
+
 
 def delete_item(llist: LinkedList[Cat]()) -> None:
-    for i in range (10000, 0):
-        llist.__delitem__(i)
+    for i in range(10000, 0):
+        del llist[i]
 
 
 def shift_list(llist: LinkedList[Cat]()) -> None:
-    for i in range (0, 10000):
+    for i in range(0, 10000):
         llist.shift(Direction.FORWARD, 2)
+
 
 if __name__ == "__main__":
     linked_list = LinkedList[Cat]()
@@ -411,6 +427,5 @@ if __name__ == "__main__":
     shift_list(linked_list)
     delete_item(linked_list)
     add_item_to_head(linked_list)
-
 
     print(linked_list)

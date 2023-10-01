@@ -1,11 +1,13 @@
-from typing import List
 from dataclasses import dataclass
-from typing import TypeVar, Generic, Optional, Callable
+from typing import List
+from typing import TypeVar, Generic, Optional
 
 T = TypeVar('T')
 
+
 class TheSameKeyException(Exception):
     pass
+
 
 class HashTable:
     @dataclass
@@ -31,6 +33,7 @@ class HashTable:
         
         :arg size: int = 8 - По умолчанию размер равен 8.  
     """
+
     def __init__(self, size: int = 8):
         self.size: int = size
         self.__map: List[HashTable._Node] = [HashTable._Node(None, None)] * self.size
@@ -40,7 +43,8 @@ class HashTable:
         высчитывая новый хэш код для каждого элемента.
         __setitem__ - прописывается явно, чтобы передать параметр is_rehash_call
     """
-    def rehash(self) -> None:
+
+    def _rehash(self) -> None:
         self.size = self.size * 2
         temp = self.__map
         self.__map: List[HashTable._Node] = [HashTable._Node(None, None)] * self.size
@@ -62,21 +66,22 @@ class HashTable:
             Если таблица заполнена, она сначала удваивается в размере, и рехэшируется
             Если хэш-код уже существует, проверяем, есть ли у него потомки в цепи, и вставляем в самый конец,
             иначе просто вставляем элемент в бакет
-            если is_rehash_call = True, то количество entity не считается, т к количество сущностей в данной таблице
+            Если is_rehash_call = True, то количество entity не считается, т к количество сущностей в данной таблице
             не наращивается, оно просто перезаписывается
 
         """
+
     def __setitem__(self, key: T, value: T, is_rehash_call: bool = False) -> None:
-        item = HashTable._Node(key, value)
+        item: HashTable._Node = HashTable._Node(key, value)
 
         for node in self.__map:
             if node.key == item.key:
                 raise TheSameKeyException("item.key exists in Hash Table")
 
         if self.size == self._entities:
-            self.rehash()
+            self._rehash()
 
-        hash_value = self._hash_code(str(item.key))
+        hash_value: int = self._hash_code(str(item.key))
 
         if self.__map[hash_value].key is not None:
             temp = item
@@ -96,9 +101,10 @@ class HashTable:
             :arg key(int) - Ключ искомого элемента
             :return _Node | None
     """
+
     def __getitem__(self, key: T) -> _Node:
 
-        hash_value = self._hash_code(str(key))
+        hash_value: int = self._hash_code(str(key))
 
         if self.__map[hash_value].key == key:
 
@@ -122,8 +128,9 @@ class HashTable:
          Args:
             :arg item: Node = искомый элемент
     """
+
     def __contains__(self, item: _Node) -> bool:
-        hash_value = self._hash_code(str(item.key))
+        hash_value: int = self._hash_code(str(item.key))
 
         if self.__map[hash_value].key == item.key:
             return True
@@ -138,11 +145,13 @@ class HashTable:
                 return True
 
         return False
+
     """
         Этот метод ищет узел с указанным значением в хеш-таблице.
         При повторе значений, находит самый первый
         
     """
+
     def find_by_value(self, value: T) -> _Node:
         for node in self.__map:
             temp = node
@@ -164,6 +173,7 @@ class HashTable:
             :arg base: int = 4219 - база, по которой будет строиться хэш код, может быть любой
         
     """
+
     def _hash_code(self, value: str) -> int:
         return int(str(hash(value))) % self.size
 
@@ -171,8 +181,9 @@ class HashTable:
         Переопределение print 
         Метод возвращает строковое представление хеш-таблицы.
     """
+
     def __repr__(self) -> str:
-        printable = "\n{\n"
+        printable: str = "\n{\n"
 
         for node in self.__map:
             temp = node
@@ -224,7 +235,7 @@ class HashTable:
         if not self[key]:
             return
 
-        hash_value = self._hash_code(str(key))
+        hash_value: int = self._hash_code(str(key))
 
         if self.__map[hash_value].key == key:
             self.__map[hash_value].visible = False
@@ -252,7 +263,7 @@ class HashTable:
         if not self[key]:
             return False
 
-        hash_value = self._hash_code(str(key))
+        hash_value: int = self._hash_code(str(key))
 
         if self.__map[hash_value].key == key:
             self.__map[hash_value].visible = False
@@ -270,18 +281,21 @@ class HashTable:
                 found.visible = False
                 return True
 
+
 def add_item(map: HashTable()) -> None:
-    for i in range (0, 10000):
-        map.__add__(i, f"item{i}")
+    for i in range(0, 10000):
+        map[i] = f"item{i}"
 
 
 def get_item(map: HashTable()) -> None:
-    for i in range (0, 10000):
-        map.__getitem__(i)
+    for i in range(0, 10000):
+        item = map[i]
+
 
 def delete_item(map: HashTable()) -> None:
     for i in range(10000, 0):
         map.delete(i)
+
 
 if __name__ == "__main__":
     map = HashTable()

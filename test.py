@@ -113,8 +113,8 @@ class TestLinkedList(unittest.TestCase):
     def test_get_item(self):
         actual_list = LinkedList[Cat]()
         cat_max2 = Cat("Max2", 7)
-        actual_list.insert(cat_max2)
-        actual_list.insert(Cat("Max3", 7))
+        actual_list[0] = cat_max2
+        actual_list[0] = Cat("Max3", 7)
 
         self.assertEqual(actual_list[1], cat_max2)
         print(f'{actual_list[1]} == {cat_max2}')
@@ -144,9 +144,9 @@ class TestLinkedList(unittest.TestCase):
 
     def test_deletion(self):
         actual_list = LinkedList[Cat]()
-        actual_list.insert(Cat("Max1", 7))
-        actual_list.insert(Cat("Max2", 7))
-        actual_list.insert(Cat("Max3", 7))
+        actual_list[0] = Cat("Max1", 7)
+        actual_list[0] = Cat("Max2", 7)
+        actual_list[0] = Cat("Max3", 7)
 
         del actual_list[2]
         with self.assertRaises(IndexOutOfBoundException):
