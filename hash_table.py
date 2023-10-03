@@ -81,7 +81,7 @@ class HashTable:
         if self.size == self._entities:
             self._rehash()
 
-        hash_value: int = self._hash_code(str(item.key))
+        hash_value: int = self.hash_code(str(item.key))
 
         if self.__map[hash_value].key is not None:
             temp = item
@@ -95,6 +95,8 @@ class HashTable:
         if not is_rehash_call:
             self._entities = self._entities + 1
 
+
+
     """
         Этот метод возвращает узел с указанным ключом из хеш-таблицы. Если такого ключа нет, он возвращает None.
         Args:
@@ -104,7 +106,7 @@ class HashTable:
 
     def __getitem__(self, key: T) -> _Node:
 
-        hash_value: int = self._hash_code(str(key))
+        hash_value: int = self.hash_code(str(key))
 
         if self.__map[hash_value].key == key:
 
@@ -130,7 +132,7 @@ class HashTable:
     """
 
     def __contains__(self, item: _Node) -> bool:
-        hash_value: int = self._hash_code(str(item.key))
+        hash_value: int = self.hash_code(str(item.key))
 
         if self.__map[hash_value].key == item.key:
             return True
@@ -174,7 +176,7 @@ class HashTable:
         
     """
 
-    def _hash_code(self, value: str) -> int:
+    def hash_code(self, value: str) -> int:
         return int(str(hash(value))) % self.size
 
     """
@@ -235,7 +237,7 @@ class HashTable:
         if not self[key]:
             return
 
-        hash_value: int = self._hash_code(str(key))
+        hash_value: int = self.hash_code(str(key))
 
         if self.__map[hash_value].key == key:
             self.__map[hash_value].visible = False
@@ -263,7 +265,7 @@ class HashTable:
         if not self[key]:
             return False
 
-        hash_value: int = self._hash_code(str(key))
+        hash_value: int = self.hash_code(str(key))
 
         if self.__map[hash_value].key == key:
             self.__map[hash_value].visible = False

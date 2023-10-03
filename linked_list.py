@@ -109,7 +109,7 @@ class LinkedList(Generic[T]):
         а потом в хвост ставим ноду
     """
 
-    def push_tail(self, data: T) -> None:
+    def push_back(self, data: T) -> None:
         node = Node[T](data)
         if self._length <= 0:
             self._head = node
@@ -163,10 +163,7 @@ class LinkedList(Generic[T]):
         поэтому вызываем соответствующую функцию
         
         Иначе запускаем цикл, поке не найдём ноду с необходимым индексом
-        Сохраняем ноду для вставки, ставим ей ссылку на некст ноду найдённой ноде, 
-        ставим предшествующей ноде, ссылку на следующую ноду на ту, что будем вставлять
-        ставим вставляемой ноде ссылку на предыдущую ноду как в ноде, которую мы заменили
-        и в той ноде, что мы заменили по индексу ставим ссылку на предыдущую ноду вставляемую ноду
+        Меняем data в найденной ноде
     """
 
     def __setitem__(self, index: int = 0, data: Optional[T] = None):
@@ -178,23 +175,20 @@ class LinkedList(Generic[T]):
         if data is None:
             raise AssertionError
 
-        if index == 0:
+        if self._head is None and index == 0:
             self.push_head(data)
             return
-        elif index == self._length - 1:
-            self.push_tail(data)
+        elif index == 0 and self._length == 1:
+            node = Node(data)
+            self._head = node
+            self._tail = node
             return
 
         node = self._head
         for i in range(0, index):
             node = node.next_ptr
 
-        insert_node = Node[T](data)
-        insert_node.next_ptr = node
-        node.prev_ptr.next_ptr = insert_node
-        insert_node.prev_ptr = node.prev_ptr
-        node.prev_ptr = insert_node
-        self._length += 1
+        node.data = data
 
     """
         Нахождение элемента по индексу
@@ -358,7 +352,7 @@ class LinkedList(Generic[T]):
                 return
             case Direction.BACKWARD:
                 for i in range(0, n):
-                    self.push_tail(self._head.data)
+                    self.push_back(self._head.data)
                     self.__delitem__(0)
                 return
 
